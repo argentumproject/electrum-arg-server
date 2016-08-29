@@ -12,9 +12,9 @@ params = {
         'genesis_hash': '000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943'
     },
     'argentum_main': {
-        'pubkey_address': 48,
+        'pubkey_address': 23,
         'script_address': 5,
-        'genesis_hash': '12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2'
+        'genesis_hash': '88c667bc63167685e4e4da058fffdfe8e007e5abffd6855de52ad59df7bb0bb2'
     },
     'argentum_test': {
         'pubkey_address': 111,
