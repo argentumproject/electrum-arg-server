@@ -11,12 +11,12 @@ params = {
         'script_address': 196,
         'genesis_hash': '000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943'
     },
-    'litecoin_main': {
+    'argentum_main': {
         'pubkey_address': 48,
         'script_address': 5,
         'genesis_hash': '12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2'
     },
-    'litecoin_test': {
+    'argentum_test': {
         'pubkey_address': 111,
         'script_address': 196,
         'genesis_hash': 'f5ae71e26c74beacc88382716aced69cddf3dffff24f384e1808905e0188f68f'

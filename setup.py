@@ -1,30 +1,30 @@
 from setuptools import setup
 
 setup(
-    name="electrum-ltc-server",
+    name="electrum-arg-server",
     version="1.0",
-    scripts=['run_electrum_ltc_server.py','electrum-ltc-server'],
+    scripts=['run_electrum_arg_server.py','electrum-arg-server'],
     install_requires=['plyvel','jsonrpclib', 'irc >= 11, <=14.0'],
     package_dir={
-        'electrumltcserver':'src'
+        'electrumargserver':'src'
         },
     py_modules=[
-        'electrumltcserver.__init__',
-        'electrumltcserver.utils',
-        'electrumltcserver.storage',
-        'electrumltcserver.deserialize',
-        'electrumltcserver.networks',
-        'electrumltcserver.blockchain_processor',
-        'electrumltcserver.server_processor',
-        'electrumltcserver.processor',
-        'electrumltcserver.version',
-        'electrumltcserver.ircthread',
-        'electrumltcserver.stratum_tcp'
+        'electrumargserver.__init__',
+        'electrumargserver.utils',
+        'electrumargserver.storage',
+        'electrumargserver.deserialize',
+        'electrumargserver.networks',
+        'electrumargserver.blockchain_processor',
+        'electrumargserver.server_processor',
+        'electrumargserver.processor',
+        'electrumargserver.version',
+        'electrumargserver.ircthread',
+        'electrumargserver.stratum_tcp'
     ],
-    description="Litecoin Electrum Server",
+    description="Argentum Electrum Server",
     author="Thomas Voegtlin",
     author_email="thomasv@electrum.org",
     license="MIT Licence",
-    url="https://github.com/pooler/electrum-ltc-server/",
-    long_description="""Server for the Electrum Lightweight Litecoin Wallet"""
+    url="https://github.com/argentumproject/electrum-arg-server/",
+    long_description="""Server for the Electrum Lightweight Argentum Wallet"""
 )
