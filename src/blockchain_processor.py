@@ -79,11 +79,11 @@ class BlockchainProcessor(Processor):
             self.test_reorgs = False
         self.storage = Storage(config, shared, self.test_reorgs)
 
-        self.bitcoind_url = 'http://%s:%s@%s:%s/' % (
-            config.get('bitcoind', 'bitcoind_user'),
-            config.get('bitcoind', 'bitcoind_password'),
-            config.get('bitcoind', 'bitcoind_host'),
-            config.get('bitcoind', 'bitcoind_port'))
+        self.argentumd_url = 'http://%s:%s@%s:%s/' % (
+            config.get('argentumd', 'argentumd_user'),
+            config.get('argentumd', 'argentumd_password'),
+            config.get('argentumd', 'argentumd_host'),
+            config.get('argentumd', 'argentumd_port'))
 
         self.sent_height = 0
         self.sent_header = None
@@ -101,7 +101,7 @@ class BlockchainProcessor(Processor):
 
 
     def do_catch_up(self):
-        self.header = self.block2header(self.bitcoind('getblock', (self.storage.last_hash,)))
+        self.header = self.block2header(self.argentumd('getblock', (self.storage.last_hash,)))
         self.header['utxo_root'] = self.storage.get_root_hash().encode('hex')
         self.catch_up(sync=False)
         if not self.shared.stopped():
@@ -135,7 +135,7 @@ class BlockchainProcessor(Processor):
             msg = "block %d (%d %.2fs) %s" %(self.storage.height, num_tx, delta, self.storage.get_root_hash().encode('hex'))
             msg += " (%.2ftx/s, %.2fs/block)" % (tx_per_second, seconds_per_block)
             run_blocks = self.storage.height - self.start_catchup_height
-            remaining_blocks = self.bitcoind_height - self.storage.height
+            remaining_blocks = self.argentumd_height - self.storage.height
             if run_blocks>0 and remaining_blocks>0:
                 remaining_minutes = remaining_blocks * seconds_per_block / 60
                 new_blocks = int(remaining_minutes / 10) # number of new blocks expected during catchup
@@ -145,28 +145,28 @@ class BlockchainProcessor(Processor):
                 msg += " (eta %s, %d blocks)" % (rt, remaining_blocks)
             print_log(msg)
 
-    def wait_on_bitcoind(self):
+    def wait_on_argentumd(self):
         self.shared.pause()
         time.sleep(10)
         if self.shared.stopped():
             # this will end the thread
             raise BaseException()
 
-    def bitcoind(self, method, params=()):
+    def argentumd(self, method, params=()):
         postdata = dumps({"method": method, 'params': params, 'id': 'jsonrpc'})
         while True:
             try:
-                response = urllib.urlopen(self.bitcoind_url, postdata)
+                response = urllib.urlopen(self.argentumd_url, postdata)
                 r = load(response)
                 response.close()
             except:
                 print_log("cannot reach argentumd...")
-                self.wait_on_bitcoind()
+                self.wait_on_argentumd()
             else:
                 if r['error'] is not None:
                     if r['error'].get('code') == -28:
                         print_log("argentumd still warming up...")
-                        self.wait_on_bitcoind()
+                        self.wait_on_argentumd()
                         continue
                     raise BaseException(r['error'])
                 break
@@ -185,8 +185,8 @@ class BlockchainProcessor(Processor):
         }
 
     def get_header(self, height):
-        block_hash = self.bitcoind('getblockhash', (height,))
-        b = self.bitcoind('getblock', (block_hash,))
+        block_hash = self.argentumd('getblockhash', (height,))
+        b = self.argentumd('getblock', (block_hash,))
         return self.block2header(b)
 
     def init_headers(self, db_height):
@@ -287,7 +287,7 @@ class BlockchainProcessor(Processor):
 
     def get_mempool_transaction(self, txid):
         try:
-            raw_tx = self.bitcoind('getrawtransaction', (txid, 0))
+            raw_tx = self.argentumd('getrawtransaction', (txid, 0))
         except:
             return None
         vds = deserialize.BCDataStream()
@@ -350,8 +350,8 @@ class BlockchainProcessor(Processor):
         if cache_only:
             return -1
 
-        block_hash = self.bitcoind('getblockhash', (height,))
-        b = self.bitcoind('getblock', (block_hash,))
+        block_hash = self.argentumd('getblockhash', (height,))
+        b = self.argentumd('getblock', (block_hash,))
         tx_list = b.get('tx')
         tx_pos = tx_list.index(tx_hash)
 
@@ -432,7 +432,7 @@ class BlockchainProcessor(Processor):
 
         # add undo info
         if not revert:
-            self.storage.write_undo_info(block_height, self.bitcoind_height, undo_info)
+            self.storage.write_undo_info(block_height, self.argentumd_height, undo_info)
 
         # add the max
         self.storage.save_height(block_hash, block_height)
@@ -565,7 +565,7 @@ class BlockchainProcessor(Processor):
 
         elif method == 'blockchain.transaction.broadcast':
             try:
-                txo = self.bitcoind('sendrawtransaction', params)
+                txo = self.argentumd('sendrawtransaction', params)
                 print_log("sent tx:", txo)
                 result = txo
             except BaseException, e:
@@ -590,11 +590,11 @@ class BlockchainProcessor(Processor):
 
         elif method == 'blockchain.transaction.get':
             tx_hash = params[0]
-            result = self.bitcoind('getrawtransaction', (tx_hash, 0))
+            result = self.argentumd('getrawtransaction', (tx_hash, 0))
 
         elif method == 'blockchain.estimatefee':
             num = int(params[0])
-            result = self.bitcoind('estimatefee', (num,))
+            result = self.argentumd('estimatefee', (num,))
 
         elif method == 'blockchain.relayfee':
             result = self.relayfee
@@ -606,7 +606,7 @@ class BlockchainProcessor(Processor):
 
 
     def get_block(self, block_hash):
-        block = self.bitcoind('getblock', (block_hash,))
+        block = self.argentumd('getblock', (block_hash,))
 
         rawtxreq = []
         i = 0
@@ -621,12 +621,12 @@ class BlockchainProcessor(Processor):
 
         while True:
             try:
-                response = urllib.urlopen(self.bitcoind_url, postdata)
+                response = urllib.urlopen(self.argentumd_url, postdata)
                 r = load(response)
                 response.close()
             except:
                 logger.error("argentumd error (getfullblock)")
-                self.wait_on_bitcoind()
+                self.wait_on_argentumd()
                 continue
             try:
                 rawtxdata = []
@@ -635,7 +635,7 @@ class BlockchainProcessor(Processor):
                     rawtxdata.append(ir['result'])
             except BaseException as e:
                 logger.error(str(e))
-                self.wait_on_bitcoind()
+                self.wait_on_argentumd()
                 continue
 
             block['tx'] = rawtxdata
@@ -651,11 +651,11 @@ class BlockchainProcessor(Processor):
 
         while not self.shared.stopped():
             # are we done yet?
-            info = self.bitcoind('getinfo')
+            info = self.argentumd('getinfo')
             self.relayfee = info.get('relayfee')
-            self.bitcoind_height = info.get('blocks')
-            bitcoind_block_hash = self.bitcoind('getblockhash', (self.bitcoind_height,))
-            if self.storage.last_hash == bitcoind_block_hash:
+            self.argentumd_height = info.get('blocks')
+            argentumd_block_hash = self.argentumd('getblockhash', (self.argentumd_height,))
+            if self.storage.last_hash == argentumd_block_hash:
                 self.up_to_date = True
                 break
 
@@ -666,7 +666,7 @@ class BlockchainProcessor(Processor):
             # not done..
             self.up_to_date = False
             try:
-                next_block_hash = self.bitcoind('getblockhash', (self.storage.height + 1,))
+                next_block_hash = self.argentumd('getblockhash', (self.storage.height + 1,))
             except BaseException, e:
                 revert = True
 
@@ -703,7 +703,7 @@ class BlockchainProcessor(Processor):
             # print time
             self.print_time(n)
 
-        self.header = self.block2header(self.bitcoind('getblock', (self.storage.last_hash,)))
+        self.header = self.block2header(self.argentumd('getblock', (self.storage.last_hash,)))
         self.header['utxo_root'] = self.storage.get_root_hash().encode('hex')
 
         if self.shared.stopped(): 
@@ -713,7 +713,7 @@ class BlockchainProcessor(Processor):
 
     def memorypool_update(self):
         t0 = time.time()
-        mempool_hashes = set(self.bitcoind('getrawmempool'))
+        mempool_hashes = set(self.argentumd('getrawmempool'))
         touched_addresses = set()
 
         # get new transactions
