@@ -92,7 +92,7 @@ if [ ! -d $path ]; then
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
 	mkdir -p $path
-	wget -O - "null" | tar --extract --gunzip --strip-components 1 --directory $path --file -
+	wget -O - "http://foundry.electrum-arg.org/leveldb-dump/electrum-arg-server-db-1000-2016dec7.tar.gz" | tar --extract --gunzip --strip-components 1 --directory $path --file -
     fi
 fi
 
