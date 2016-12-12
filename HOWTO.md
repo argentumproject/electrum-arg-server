@@ -204,7 +204,8 @@ The "configure" script above will offer you to download a database with pruning 
 
 You can fetch recent copies of electrum leveldb databases with different pruning limits
 and further instructions from the Electrum-ARG full archival server foundry at:
-N/A
+
+### http://foundry.electrum-arg.org/leveldb-dump/electrum-arg-server-db-1000-2016dec7.tar.gz
 
 
 Alternatively, if you have the time and nerve, you can import the blockchain yourself.
