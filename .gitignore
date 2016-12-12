@@ -2,4 +2,4 @@
 *.so
 *.o
 .gitignore
-electrum.conf
+electrum-arg-server.conf
