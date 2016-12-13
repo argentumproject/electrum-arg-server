@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="electrum-arg-server",
-    version="1.0",
+    version="1.0.1",
     scripts=['run_electrum_arg_server.py','electrum-arg-server'],
     install_requires=['plyvel','jsonrpclib', 'irc >= 11, <=14.0'],
     package_dir={
