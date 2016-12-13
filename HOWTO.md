@@ -62,8 +62,8 @@ bail-out on you from time to time with less than 2 GB of RAM, so you might have 
 monitor the process and restart it. You can tweak cache sizes in the config to an extend
 but most RAM will be used to process blocks and catch-up on initial start.
 
-CPU speed is less important than fast I/O speed. electrum-arg-server makes uses of one core 
-only leaving spare cycles for argentumd. Fast single core CPU power helps for the initial 
+CPU speed is less important than fast I/O speed. electrum-arg-server makes use of one core 
+only leaving spare cycles for bitcoind. Fast single core CPU power helps for the initial 
 block chain import. Any multi-core x86 CPU with CPU Mark / PassMark > 1500 will work
 (see https://www.cpubenchmark.net/). An ideal setup in February 2016 has 4 GB+ RAM and
 SSD for good i/o speed.
